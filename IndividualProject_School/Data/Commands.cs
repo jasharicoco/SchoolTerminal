@@ -2,9 +2,9 @@
 using Microsoft.EntityFrameworkCore;
 
 //  KONSOLLMENY
-//* HUR MÅNGA LÄRARE JOBBAR? (EF)
-//* VISA INFORMATION OM ELEVER (EF)
-//* VISA ALLA AKTIVA KURSER (EF)
+//* --HUR MÅNGA LÄRARE JOBBAR? (EF)
+//* --VISA INFORMATION OM ELEVER (EF)
+//* --VISA ALLA AKTIVA KURSER (EF)
 //* HÄMTA PERSONAL: NAMN, BEFATTNINGAR, HUR MÅNGA ÅR HAR DE ARBETAT PÅ SKOLAN (SQL via ADO.Net)
 //* LÄGG TILL PERSONAL (ADO.Net)
 //* HÄMTA ELEVER OCH SE VILKEN KLASS DE GÅR I, HÄMTA BETYG FÖR VARJE KURS DE LÄST OCH SE VILKEN LÄRARE SOM SATT BETYGET (MED DATUM) (ADO.Net)
@@ -17,6 +17,7 @@ namespace IndividualProject_School.Data
 {
     internal class Commands
     {
+        // ENTITY FRAMEWORK-METHODS
         public static void GetEmployees()
         {
             try
@@ -24,8 +25,6 @@ namespace IndividualProject_School.Data
                 Console.WriteLine("How'd you like to group the teachers?");
                 Console.WriteLine("1. By classes");
                 Console.WriteLine("2. By subjects");
-                Console.WriteLine("3. ");
-                Console.WriteLine("4. ");
 
                 string choice = Console.ReadLine();
 
@@ -34,231 +33,123 @@ namespace IndividualProject_School.Data
                     IEnumerable<Employee> employees = context.Employees
                         .Include(e => e.Profession)
                         .Include(s => s.Subjects)
+                        .Include(c => c.Classes)
                         .ToList();
 
                     IEnumerable<Employee> teachers = employees.Where(e => e.Profession.ProfessionName == "Teacher");
 
-                    foreach (var teacher in teachers)
-                    {
-                        Console.WriteLine($"{teacher.FirstName} {teacher.LastName}");
-
-                        if (teacher.Subjects != null && teacher.Subjects.Any())
-                        {
-                            Console.WriteLine("Subjects taught:");
-                            foreach (var subject in teacher.Subjects)
-                            {
-                                Console.WriteLine($"- {subject.SubjectName}");  // Adjust property based on your Subject class
-                            }
-                        }
-                        else
-                        {
-                            Console.WriteLine("No subjects assigned.");
-                        }
-
-                        Console.WriteLine();  // Add a blank line between teachers for clarity
-                    }
-
-                    Console.WriteLine($"Number of teachers: {teachers.Count()}");
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"An error occured: {ex.Message}");
-            }
-        }
-        public static void GetAllStudents()
-        {
-            try
-            {
-                Console.WriteLine("Choose how you want to sort the students:");
-                Console.WriteLine("1. Sort by first name ascending");
-                Console.WriteLine("2. Sort by first name descending");
-                Console.WriteLine("3. Sort by last name ascending");
-                Console.WriteLine("4. Sort by last name descending");
-
-                string choice = Console.ReadLine();
-
-                using (var context = new IndividuelltProjektEgzonContext())
-                {
-                    IEnumerable<Student> sortedStudents;
-
                     switch (choice)
                     {
                         case "1":
-                            sortedStudents = context.Students.OrderBy(s => s.FirstName).ToList();
+                            // Group teachers by classes
+                            var groupedByClasses = teachers
+                                .SelectMany(t => t.Classes, (teacher, classObj) => new { Teacher = teacher, Class = classObj }) // Flatten teachers and classes
+                                .GroupBy(tc => tc.Class.ClassName); // Group by class name
+
+                            // Display the groups
+                            foreach (var group in groupedByClasses)
+                            {
+                                Console.WriteLine($"Class: {group.Key}"); // Output the subject name
+                                foreach (var tc in group) // Loop through the teachers for that subject
+                                {
+                                    Console.WriteLine($"- {tc.Teacher.FirstName} {tc.Teacher.LastName}"); // Output teacher name
+                                }
+                                Console.WriteLine(); // Add a blank line after each subject
+                            }
                             break;
 
                         case "2":
-                            sortedStudents = context.Students.OrderByDescending(s => s.FirstName).ToList();
+                            var groupedBySubjects = teachers
+                                .SelectMany(t => t.Subjects, (teacher, subject) => new { teacher, subject })
+                                .GroupBy(ts => ts.subject.SubjectName)
+                                .OrderBy(group => group.Key);
+
+                            foreach (var group in groupedBySubjects)
+                            {
+                                Console.WriteLine($"Subject: {group.Key}");
+                                foreach (var ts in group)
+                                {
+                                    Console.WriteLine($"- {ts.teacher.FirstName} {ts.teacher.LastName}");
+                                }
+                                Console.WriteLine();
+                            }
                             break;
 
-                        case "3":
-                            sortedStudents = context.Students.OrderBy(s => s.LastName).ToList();
-                            foreach (var student in sortedStudents)
-                            {
-                                Console.WriteLine($"{student.LastName} {student.FirstName}");
-                            }
-                            return; // Returnera efter utskrift för att undvika dublett-utskrift
-
-                        case "4":
-                            sortedStudents = context.Students.OrderByDescending(s => s.LastName).ToList();
-                            foreach (var student in sortedStudents)
-                            {
-                                Console.WriteLine($"{student.LastName} {student.FirstName}");
-                            }
-                            return; // Returnera efter utskrift för att undvika dublett-utskrift
 
                         default:
-                            Console.WriteLine("Invalid choice. The default option is sorting by first name ascending.");
-                            sortedStudents = context.Students.OrderBy(s => s.FirstName).ToList();
+                            Console.WriteLine("Invalid choice.");
                             break;
                     }
-
-                    foreach (var student in sortedStudents)
-                    {
-                        Console.WriteLine($"{student.FirstName} {student.LastName}");
-                    }
                 }
-            }
-            catch (FormatException ex)
-            {
-                Console.WriteLine("Invalid input. Please enter a number between 1 and 4.");
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"An error occured: {ex.Message}");
-            }
-        }
-        public static void GetStudentsByClass()
-        {
-            try
-            {
-                using (var context = new IndividuelltProjektEgzonContext())
-                {
-                    // Hämta alla klasser
-                    var classes = context.Classes.ToList();
-
-                    Console.WriteLine("Choose a class:");
-                    for (int i = 0; i < classes.Count; i++)
-                    {
-                        Console.WriteLine($"{i + 1}. {classes[i].ClassName}");
-                    }
-
-                    int classChoice = int.Parse(Console.ReadLine());
-
-                    if (classChoice < 1 || classChoice > classes.Count)
-                    {
-                        Console.WriteLine("Invalid choice. Please try again.");
-                        return;
-                    }
-
-                    var selectedClass = classes[classChoice - 1];
-
-                    // Hämta elever i den valda klassen
-                    var studentsInClass = context.Students
-                        .Where(s => s.ClassId == selectedClass.ClassId)
-                        .ToList();
-
-                    Console.WriteLine($"Students in {selectedClass.ClassName}:");
-                    foreach (var student in studentsInClass)
-                    {
-                        Console.WriteLine($"{student.FirstName} {student.LastName} - {student.Class.ClassName}");
-                    }
-                }
-            }
-            catch (FormatException)
-            {
-                Console.WriteLine("Invalid input. Please enter a valid number.");
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"An error occurred: {ex.Message}");
             }
         }
-        public static void AddEmployee()
+        public static void GetAllStudents()
         {
             try
             {
                 using (var context = new IndividuelltProjektEgzonContext())
                 {
-                    // Hämta och visa alla professioner
-                    var professions = context.Professions.ToList();
-                    Console.WriteLine("Available professions:");
-                    foreach (var p in professions)
+                    IEnumerable<Student> students = context.Students
+                        .Include(c => c.Class)
+                        .ToList();
+
+                    IEnumerable<Class> classes = context.Classes;
+
+                    var groupedByClasses = students
+                        .GroupBy(s => s.Class.ClassName);
+
+                    foreach (var group in groupedByClasses)
                     {
-                        Console.WriteLine($"{p.ProfessionId}: {p.ProfessionName}");
+                        Console.WriteLine($"Class: {group.Key}");
+                        foreach (var student in group)
+                        {
+                            Console.WriteLine($"- {student.StudentId}: {student.FirstName} {student.LastName}, {student.Ssn}");
+                        }
+                        Console.WriteLine();
                     }
-
-                    Console.WriteLine("Enter the profession ID for the new employee:");
-                    if (!int.TryParse(Console.ReadLine(), out int professionId) || !professions.Any(p => p.ProfessionId == professionId))
-                    {
-                        Console.WriteLine("Invalid profession ID. Please try again.");
-                        return;
-                    }
-
-                    Console.WriteLine("Enter the first name for the new employee:");
-                    string firstName = Console.ReadLine();
-
-                    Console.WriteLine("Enter the last name for the new employee:");
-                    string lastName = Console.ReadLine();
-
-                    // Kontrollera om den valda professionen existerar
-                    var profession = professions.FirstOrDefault(p => p.ProfessionId == professionId);
-                    if (profession == null)
-                    {
-                        Console.WriteLine("The profession ID could not be found. Please try again.");
-                        return;
-                    }
-
-                    // Skapa en ny Employee och spara till databasen
-                    var newEmployee = new Employee
-                    {
-                        FirstName = firstName,
-                        LastName = lastName,
-                        ProfessionId = professionId
-                    };
-
-                    context.Employees.Add(newEmployee);
-                    context.SaveChanges();
-
-                    Console.WriteLine("The new employee has been added to the database.");
                 }
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"An error occurred while saving the new employee: {ex.Message}");
+                Console.WriteLine($"An error occured: {ex.Message}");
+            }
+        }
+        public static void GetActiveSubjects()
+        {
+            try
+            {
+                using (var context = new IndividuelltProjektEgzonContext())
+                {
+                    IEnumerable<Subject> activeSubjects = context.Subjects.Where(s => s.IsActive).OrderBy(s => s.SubjectName).ToList();
+
+                    Console.WriteLine("List of all active subjects:");
+                    foreach (var subject in activeSubjects)
+                    {
+                        Console.WriteLine($"- {subject.SubjectName}");
+                    }
+                    Console.WriteLine();
+
+                    IEnumerable<Subject> inactiveSubjects = context.Subjects.Where(s => s.IsActive == false).OrderBy(s => s.SubjectName).ToList();
+
+                    Console.WriteLine("List of all inactive subjects:");
+                    foreach (var subject in inactiveSubjects)
+                    {
+                        Console.WriteLine($"- {subject.SubjectName}");
+                    }
+                    Console.WriteLine();
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"An error occured: {ex.Message}");
             }
         }
 
-        //public static void GetAllGrades() // Sparar till eventuellt nästa labb
-        //{
-        //    try
-        //    {
-        //        using (var context = new IndividuelltProjektEgzonContext())
-        //        {
-        //            // Hämta alla betyg med relaterad student och ämne
-        //            var allGrades = context.Grades
-        //                .Include(g => g.Student)   // Hämtar den relaterade studenten
-        //                .Include(g => g.Subject)   // Hämtar det relaterade ämnet
-        //                .ToList();                 // Hämta till en lista
+        // ADO.NET METHODS
 
-        //            // Skriv ut betygen
-        //            foreach (var grade in allGrades)
-        //            {
-        //                string studentName = grade.Student.FirstName + " " + grade.Student.LastName;
-        //                string subjectName = grade.Subject.SubjectName;
-        //                string gradeValue = grade.Grade1;
-        //                DateOnly dateAssigned = grade.DateAssigned;
-
-        //                // Skriv ut informationen för varje betyg
-        //                Console.WriteLine($"{studentName} - {subjectName}: {gradeValue} (Assigned on {dateAssigned.ToShortDateString()})");
-        //            }
-        //        }
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        Console.WriteLine($"An error occured: {ex.Message}");
-        //    }
-        //}
     }
 }

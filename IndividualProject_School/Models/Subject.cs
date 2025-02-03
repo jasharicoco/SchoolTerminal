@@ -1,4 +1,7 @@
-﻿namespace IndividualProject_School.Models;
+﻿using System;
+using System.Collections.Generic;
+
+namespace IndividualProject_School.Models;
 
 public partial class Subject
 {
@@ -9,6 +12,8 @@ public partial class Subject
     public int? EmployeeId { get; set; }
 
     public int? ClassId { get; set; }
+
+    public bool IsActive { get; set; }
 
     public virtual Class? Class { get; set; }
 

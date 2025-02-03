@@ -1,4 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System;
+using System.Collections.Generic;
+using Microsoft.EntityFrameworkCore;
 
 namespace IndividualProject_School.Models;
 
@@ -103,6 +105,7 @@ public partial class IndividuelltProjektEgzonContext : DbContext
         {
             entity.HasKey(e => e.SubjectId).HasName("PK__Subjects__AC1BA3A8CEE79803");
 
+            entity.Property(e => e.IsActive).HasDefaultValue(true);
             entity.Property(e => e.SubjectName).HasMaxLength(100);
 
             entity.HasOne(d => d.Class).WithMany(p => p.Subjects)

@@ -1,4 +1,7 @@
-﻿namespace IndividualProject_School.Models;
+﻿using System;
+using System.Collections.Generic;
+
+namespace IndividualProject_School.Models;
 
 public partial class Class
 {

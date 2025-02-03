@@ -1,4 +1,9 @@
 ﻿using IndividualProject_School.Data;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace IndividualProject_School
 {
@@ -7,7 +12,6 @@ namespace IndividualProject_School
         static void Main(string[] args)
         {
             Commands.GetEmployees();
-            //Menu.ShowMenu();
         }
     }
 }
