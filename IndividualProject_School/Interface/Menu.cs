@@ -1,16 +1,8 @@
 ﻿using IndividualProject_School.Data;
 
-//KONSOLLMENY
-//* HUR MÅNGA LÄRARE JOBBAR? (EF)
-//* VISA INFORMATION OM ELEVER (EF)
-//* VISA ALLA AKTIVA KURSER (EF)
-//* HÄMTA PERSONAL: NAMN, BEFATTNINGAR, HUR MÅNGA ÅR HAR DE ARBETAT PÅ SKOLAN (SQL via ADO.Net)
-//* LÄGG TILL PERSONAL (ADO.Net)
-//* HÄMTA ELEVER OCH SE VILKEN KLASS DE GÅR I, HÄMTA BETYG FÖR VARJE KURS DE LÄST OCH SE VILKEN LÄRARE SOM SATT BETYGET (MED DATUM) (ADO.Net)
-//* LÖNER TILL PERSONAL (SQL)
-//* MEDELLÖN (SQL)
-//* STORED PROCEDURE SOM TAR EMOT ID PÅ ELEV OCH GER INFO OM ELEVEN (SQL)
-//* SÄTTA BETYG GENOM TRANSACTIONS (SQL)
+//* 6: Vi vill kunna ta fram alla betyg för en elev i varje kurs/ämne de läst och vi vill kunna se vilken lärare som satt betygen, vi vill också se vilka datum betygen satts. (SQL via ADO.Net)
+//* 9: Skapa en Stored Procedure som tar emot ett Id och returnerar viktig information om den elev som är registrerad med aktuellt Id. (SQL via ADO.Net)
+//* 10: Sätt betyg på en elev genom att använda Transactions ifall något går fel. (SQL via ADO.Net)
 
 namespace IndividualProject_School.Interface
 {
@@ -21,18 +13,19 @@ namespace IndividualProject_School.Interface
             while (true)
             {
                 Console.Clear();
-                Console.WriteLine("Hello and welcome to the School.");
+                Console.WriteLine("Hello and welcome to the School.\n");
                 Console.WriteLine("What would you like to do?\n" +
-                                  "1. EF: List teachers in different departments" +
-                                  "2. EF: List students and their information\n" +
-                                  "3. EF: List all active subjects\n" +
-                                  "4. ADO: List all active subjects\n" +
-                                  "5. ADO: List all active subjects\n" +
-                                  "6. ADO: List all active subjects\n" +
-                                  "7. ADO: List all active subjects\n" +
-                                  "8. ADO: List all active subjects\n" +
+                                  "1. //EF: List teachers in different departments\n" +
+                                  "2. //EF: List students and their information\n" +
+                                  "3. //EF: List all active subjects\n" +
+                                  "4. //ADO: List employees\n" +
+                                  "5. //ADO: Add employee\n" +
+                                  "6. ADO: List grades for a specific student\n" +
+                                  "7. //ADO: List total sum of salaric payments in different professions\n" +
+                                  "8. //ADO: List average salaries for different professions\n" +
                                   "9. ADO: List all active subjects\n" +
-                                  "10. Exit");
+                                  "10. ADO: List all active subjects\n" +
+                                  "11. Exit");
 
                 string choice = Console.ReadLine();
 
@@ -54,10 +47,12 @@ namespace IndividualProject_School.Interface
                         break;
 
                     case "4":
+                        ADOCommands.GetEmployees();
                         Console.ReadKey();
                         break;
 
                     case "5":
+                        ADOCommands.AddEmployee();
                         Console.ReadKey();
                         break;
 
@@ -66,6 +61,7 @@ namespace IndividualProject_School.Interface
                         break;
 
                     case "7":
+                        ADOCommands.GetAvgSalary();
                         Console.ReadKey();
                         break;
 

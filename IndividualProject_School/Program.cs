@@ -1,4 +1,5 @@
 ﻿using IndividualProject_School.Data;
+using IndividualProject_School.Interface;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,7 +12,7 @@ namespace IndividualProject_School
     {
         static void Main(string[] args)
         {
-            ADOCommands.ShowMembers();
+            Menu.ShowMenu();
         }
     }
 }

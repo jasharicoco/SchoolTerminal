@@ -4,6 +4,7 @@ using IndividualProject_School.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace IndividualProject_School.Migrations
 {
     [DbContext(typeof(IndividuelltProjektEgzonContext))]
-    partial class IndividuelltProjektEgzonContextModelSnapshot : ModelSnapshot
+    [Migration("20250205151802_MatchaDBs")]
+    partial class MatchaDBs
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
