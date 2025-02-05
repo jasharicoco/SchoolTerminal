@@ -13,42 +13,6 @@ namespace IndividualProject_School.Data
                                                    Application Intent=ReadWrite;
                                                    Multi Subnet Failover=False";
 
-        public static void GetClasses()
-        {
-            string query = @"SELECT 
-                             c.ClassId AS Id,
-                             c.ClassName AS Class,
-                             e.FirstName + ' ' + e.LastName AS MentoredBy,
-                             p.ProfessionName AS Title
-                             FROM Classes c
-                             INNER JOIN Employees e ON c.EmployeeId = e.EmployeeId
-                             INNER JOIN Professions p ON e.ProfessionId = p.ProfessionId";
-
-            ExecuteQuery(query, 16);
-        }
-        public static void GetAvgSalary()
-        {
-            string query = @"SELECT 
-                             p.ProfessionName AS Profession,
-                             ROUND(AVG(e.Salary), 2) AS AverageSalary
-                             FROM Employees e
-                             INNER JOIN Professions p ON e.ProfessionId = p.ProfessionId
-                             GROUP BY p.ProfessionName
-                             ORDER BY AverageSalary DESC"; // Sorterar från högsta till lägsta lön
-
-            ExecuteQuery(query, 16);
-        }
-        public static void GetSalaryPerMonthPerProfession()
-        {
-            string query = @"SELECT p.ProfessionName,
-                             SUM(e.Salary) AS TotalSalary
-                             FROM Employees e
-                             JOIN Professions p ON e.ProfessionId = p.ProfessionId
-                             GROUP BY p.ProfessionName
-                             ORDER BY p.ProfessionName";
-
-            ExecuteQuery(query, 16);
-        }
         public static void GetEmployees()
         {
             string query = @"SELECT 
@@ -60,37 +24,6 @@ namespace IndividualProject_School.Data
                              INNER JOIN Professions p ON e.ProfessionId = p.ProfessionId";
 
             ExecuteQuery(query, 16);
-        }
-        public static List<(int Id, string ProfessionName)> ListProfessions()
-        {
-            string query = @"SELECT ProfessionId AS Id, ProfessionName AS Profession FROM Professions";
-            var professionList = new List<(int, string)>();
-
-            using (SqlConnection connection = new SqlConnection(_connectionString))
-            {
-                SqlCommand command = new SqlCommand(query, connection);
-
-                try
-                {
-                    connection.Open();
-                    using (SqlDataReader reader = command.ExecuteReader())
-                    {
-                        while (reader.Read())
-                        {
-                            int id = reader.GetInt32(0);
-                            string name = reader.GetString(1);
-                            professionList.Add((id, name));
-                            Console.WriteLine($"{id}: {name}");  // Skriver ut listan av yrken
-                        }
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine(ex.Message);
-                }
-            }
-
-            return professionList;
         }
         public static void AddEmployee()
         {
@@ -134,6 +67,60 @@ namespace IndividualProject_School.Data
 
             // Skapa den nya anställde med de insamlade uppgifterna
             ExecuteAddEmployee(firstName, lastName, professionId, salary, employmentDate);
+        }
+        public static void GetSalaryPerMonthPerProfession()
+        {
+            string query = @"SELECT p.ProfessionName,
+                             SUM(e.Salary) AS TotalSalary
+                             FROM Employees e
+                             JOIN Professions p ON e.ProfessionId = p.ProfessionId
+                             GROUP BY p.ProfessionName
+                             ORDER BY p.ProfessionName";
+
+            ExecuteQuery(query, 16);
+        }
+        public static void GetAvgSalary()
+        {
+            string query = @"SELECT 
+                             p.ProfessionName AS Profession,
+                             ROUND(AVG(e.Salary), 2) AS AverageSalary
+                             FROM Employees e
+                             INNER JOIN Professions p ON e.ProfessionId = p.ProfessionId
+                             GROUP BY p.ProfessionName
+                             ORDER BY AverageSalary DESC"; // Sorterar från högsta till lägsta lön
+
+            ExecuteQuery(query, 16);
+        }
+        public static List<(int Id, string ProfessionName)> ListProfessions()
+        {
+            string query = @"SELECT ProfessionId AS Id, ProfessionName AS Profession FROM Professions";
+            var professionList = new List<(int, string)>();
+
+            using (SqlConnection connection = new SqlConnection(_connectionString))
+            {
+                SqlCommand command = new SqlCommand(query, connection);
+
+                try
+                {
+                    connection.Open();
+                    using (SqlDataReader reader = command.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            int id = reader.GetInt32(0);
+                            string name = reader.GetString(1);
+                            professionList.Add((id, name));
+                            Console.WriteLine($"{id}: {name}");  // Skriver ut listan av yrken
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
+                }
+            }
+
+            return professionList;
         }
 
         // Våra metoder för att köra SQL queries mot databasen

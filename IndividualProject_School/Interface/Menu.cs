@@ -15,16 +15,16 @@ namespace IndividualProject_School.Interface
                 Console.Clear();
                 Console.WriteLine("Hello and welcome to the School.\n");
                 Console.WriteLine("What would you like to do?\n" +
-                                  "1. //EF: List teachers in different departments\n" +
-                                  "2. //EF: List students and their information\n" +
-                                  "3. //EF: List all active subjects\n" +
-                                  "4. //ADO: List employees\n" +
-                                  "5. //ADO: Add employee\n" +
+                                  "1. -----EF: List teachers in different departments\n" +
+                                  "2. -----EF: List students and their information\n" +
+                                  "3. -----EF: List all active subjects\n" +
+                                  "4. -----ADO: List employees\n" +
+                                  "5. -----ADO: Add employee\n" +
                                   "6. ADO: List grades for a specific student\n" +
-                                  "7. //ADO: List total sum of salaric payments in different professions\n" +
-                                  "8. //ADO: List average salaries for different professions\n" +
-                                  "9. ADO: List all active subjects\n" +
-                                  "10. ADO: List all active subjects\n" +
+                                  "7. -----ADO: List total sum of salaric payments in different professions\n" +
+                                  "8. -----ADO: List average salaries for different professions\n" +
+                                  "9. ADO: Get information about student through Stored Procedure\n" +
+                                  "10. ADO: Add grade to student through Transactions\n" +
                                   "11. Exit");
 
                 string choice = Console.ReadLine();
