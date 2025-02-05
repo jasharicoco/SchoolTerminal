@@ -11,7 +11,7 @@ namespace IndividualProject_School
     {
         static void Main(string[] args)
         {
-            Commands.GetEmployees();
+            ADOCommands.ShowMembers();
         }
     }
 }

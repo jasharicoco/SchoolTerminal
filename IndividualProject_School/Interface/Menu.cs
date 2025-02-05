@@ -16,50 +16,79 @@ namespace IndividualProject_School.Interface
 {
     internal class Menu
     {
-        //public static void ShowMenu()
-        //{
-        //    while (true)
-        //    {
-        //        Console.Clear();
-        //        Console.WriteLine("Hello and welcome to the School.");
-        //        Console.WriteLine("What would you like to do?\n" +
-        //                          "1. List students\n" +
-        //                          "2. List students in a specific class\n" +
-        //                          "3. Add staff\n" +
-        //                          "4. Exit");
+        public static void ShowMenu()
+        {
+            while (true)
+            {
+                Console.Clear();
+                Console.WriteLine("Hello and welcome to the School.");
+                Console.WriteLine("What would you like to do?\n" +
+                                  "1. EF: List teachers in different departments" +
+                                  "2. EF: List students and their information\n" +
+                                  "3. EF: List all active subjects\n" +
+                                  "4. ADO: List all active subjects\n" +
+                                  "5. ADO: List all active subjects\n" +
+                                  "6. ADO: List all active subjects\n" +
+                                  "7. ADO: List all active subjects\n" +
+                                  "8. ADO: List all active subjects\n" +
+                                  "9. ADO: List all active subjects\n" +
+                                  "10. Exit");
 
-        //        string choice = Console.ReadLine();
+                string choice = Console.ReadLine();
 
-        //        switch (choice)
-        //        {
-        //            case "1":
-        //                Commands.GetAllStudents();
-        //                Console.ReadKey();
-        //                break;
+                switch (choice)
+                {
+                    case "1":
+                        EFCommands.GetEmployees();
+                        Console.ReadKey();
+                        break;
 
-        //            case "2":
-        //                Commands.GetStudentsByClass();
-        //                Console.ReadKey();
-        //                break;
+                    case "2":
+                        EFCommands.GetAllStudents();
+                        Console.ReadKey();
+                        break;
 
-        //            case "3":
-        //                Commands.AddEmployee();
-        //                Console.ReadKey();
-        //                break;
+                    case "3":
+                        EFCommands.GetActiveSubjects();
+                        Console.ReadKey();
+                        break;
 
-        //            case "4":
-        //                Console.WriteLine("Exiting the program...");
-        //                Console.ReadKey();
-        //                return;
+                    case "4":
+                        Console.ReadKey();
+                        break;
 
-        //            default:
-        //                Console.WriteLine("Invalid choice. Please try again.");
-        //                Console.ReadKey();
-        //                break;
-        //        }
+                    case "5":
+                        Console.ReadKey();
+                        break;
 
-        //        Console.WriteLine(); // Mellanslag mellan valen
-        //    }
-        //}
+                    case "6":
+                        Console.ReadKey();
+                        break;
+
+                    case "7":
+                        Console.ReadKey();
+                        break;
+
+                    case "8":
+                        Console.ReadKey();
+                        break;
+
+                    case "9":
+                        Console.ReadKey();
+                        break;
+
+                    case "10":
+                        Console.WriteLine("Exiting the program...");
+                        return;
+
+                    default:
+                        Console.WriteLine("Invalid choice. Please try again.");
+                        Console.ReadKey();
+                        break;
+                }
+
+                Console.WriteLine(); // Mellanslag mellan valen
+            }
+        }
     }
 }

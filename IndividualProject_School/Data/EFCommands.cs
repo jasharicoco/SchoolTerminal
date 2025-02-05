@@ -15,7 +15,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace IndividualProject_School.Data
 {
-    internal class Commands
+    internal class EFCommands
     {
         // ENTITY FRAMEWORK-METHODS
         public static void GetEmployees()
