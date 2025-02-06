@@ -25,10 +25,33 @@ namespace IndividualProject_School.Data
 
             ExecuteQuery(query, 16);
         }
+        public static void GetSalaryPerMonthPerProfession()
+        {
+            string query = @"SELECT p.ProfessionName,
+                             SUM(e.Salary) AS TotalSalary
+                             FROM Employees e
+                             JOIN Professions p ON e.ProfessionId = p.ProfessionId
+                             GROUP BY p.ProfessionName
+                             ORDER BY p.ProfessionName";
+
+            ExecuteQuery(query, 16);
+        }
+        public static void GetAvgSalary()
+        {
+            string query = @"SELECT 
+                             p.ProfessionName AS Profession,
+                             ROUND(AVG(e.Salary), 2) AS AverageSalary
+                             FROM Employees e
+                             INNER JOIN Professions p ON e.ProfessionId = p.ProfessionId
+                             GROUP BY p.ProfessionName
+                             ORDER BY AverageSalary DESC"; // Sorterar från högsta till lägsta lön
+
+            ExecuteQuery(query, 16);
+        }
         public static void AddEmployee()
         {
             Console.WriteLine("What title would you like to give your employee?");
-            List<(int Id, string ProfessionName)> professions = ListProfessions();  // Hämta alla professioner
+            List<(int Id, string ProfessionName)> professions = ListProfessions();  // Fetch all professions
 
             if (!int.TryParse(Console.ReadLine(), out int professionId))
             {
@@ -36,11 +59,11 @@ namespace IndividualProject_School.Data
                 return;
             }
 
-            // Kontrollera om professionId finns i listan
+            // Check if professionId exists in the list
             if (!professions.Any(p => p.Id == professionId))
             {
                 Console.WriteLine("Invalid Profession ID. Please choose a valid Profession ID from the list.");
-                return; 
+                return;
             }
 
             Console.WriteLine("Enter the employee's first name:");
@@ -65,31 +88,104 @@ namespace IndividualProject_School.Data
                 return;
             }
 
-            // Skapa den nya anställde med de insamlade uppgifterna
-            ExecuteAddEmployee(firstName, lastName, professionId, salary, employmentDate);
-        }
-        public static void GetSalaryPerMonthPerProfession()
-        {
-            string query = @"SELECT p.ProfessionName,
-                             SUM(e.Salary) AS TotalSalary
-                             FROM Employees e
-                             JOIN Professions p ON e.ProfessionId = p.ProfessionId
-                             GROUP BY p.ProfessionName
-                             ORDER BY p.ProfessionName";
+            // Build the query for adding the employee
+            string query = @"INSERT INTO Employees (FirstName, LastName, ProfessionId, Salary, EmploymentDate)
+             VALUES (@FirstName, @LastName, @ProfessionId, @Salary, @EmploymentDate)";
 
-            ExecuteQuery(query, 16);
-        }
-        public static void GetAvgSalary()
-        {
-            string query = @"SELECT 
-                             p.ProfessionName AS Profession,
-                             ROUND(AVG(e.Salary), 2) AS AverageSalary
-                             FROM Employees e
-                             INNER JOIN Professions p ON e.ProfessionId = p.ProfessionId
-                             GROUP BY p.ProfessionName
-                             ORDER BY AverageSalary DESC"; // Sorterar från högsta till lägsta lön
+            // Create the parameters for the query
+            SqlParameter[] parameters = new SqlParameter[] {
+        new SqlParameter("@FirstName", SqlDbType.NVarChar) { Value = firstName },
+        new SqlParameter("@LastName", SqlDbType.NVarChar) { Value = lastName },
+        new SqlParameter("@ProfessionId", SqlDbType.Int) { Value = professionId },
+        new SqlParameter("@Salary", SqlDbType.Int) { Value = salary },
+        new SqlParameter("@EmploymentDate", SqlDbType.Date) { Value = employmentDate }
+    };
 
-            ExecuteQuery(query, 16);
+            // Now call ExecuteNonQuery to execute the INSERT query
+            ExecuteNonQuery(query,parameters);
+        }
+        public static void GetGradesFromSpecificStudent()
+        {
+            Console.WriteLine("Which student?");
+            List<(int StudentId, string FirstName, string LastName, string ClassName)> students = ListStudents();  // Fetch all students
+
+            // Print the student list for selection
+            foreach (var student in students)
+            {
+                Console.WriteLine($"{student.StudentId}: {student.ClassName} - {student.FirstName} {student.LastName}");
+            }
+
+            if (!int.TryParse(Console.ReadLine(), out int studentId))
+            {
+                Console.WriteLine("Invalid input. Please enter a valid student ID.");
+                return;
+            }
+
+            // Check if the studentId exists in the list
+            if (!students.Any(s => s.StudentId == studentId))
+            {
+                Console.WriteLine("Invalid Student ID. Please choose a valid Student ID from the list.");
+                return;
+            }
+
+            // Query to fetch grades for a specific student
+            string query = @"
+                             SELECT 
+                             s.FirstName + ' ' + s.LastName AS Student,
+                             sub.SubjectName AS Subject,
+                             g.Grade AS Grade,
+                             e.FirstName + ' ' + e.LastName AS SetByMentor,
+                             FORMAT(g.DateAssigned, 'yyyy-MM-dd') AS DateAssigned
+                             FROM Grades g
+                             INNER JOIN Students s ON g.StudentId = s.StudentId
+                             INNER JOIN Subjects sub ON g.SubjectId = sub.SubjectId
+                             INNER JOIN Employees e ON g.EmployeeId = e.EmployeeId
+                             WHERE s.StudentId = @StudentId";
+
+            // Create the parameter for the query
+            SqlParameter studentIdParam = new SqlParameter("@StudentId", SqlDbType.Int)
+            {
+                Value = studentId
+            };
+
+            // Execute the query with the parameter
+            ExecuteQuery(query, 16, studentIdParam);
+        }
+        public static void GetStudentById()
+        {
+            Console.WriteLine("Which student?");
+            List<(int StudentId, string FirstName, string LastName, string ClassName)> students = ListStudents();  // Fetch all students
+
+            // Print the student list for selection
+            foreach (var student in students)
+            {
+                Console.WriteLine($"{student.StudentId}: {student.ClassName} - {student.FirstName} {student.LastName}");
+            }
+
+            if (!int.TryParse(Console.ReadLine(), out int studentId))
+            {
+                Console.WriteLine("Invalid input. Please enter a valid student ID.");
+                return;
+            }
+
+            // Check if the studentId exists in the list
+            if (!students.Any(s => s.StudentId == studentId))
+            {
+                Console.WriteLine("Invalid Student ID. Please choose a valid Student ID from the list.");
+                return;
+            }
+
+            // Query for the stored procedure
+            string query = "GetStudentById";
+
+            // Define the parameters for the stored procedure
+            SqlParameter[] parameters = new SqlParameter[]
+            {
+        new SqlParameter("@StudentId", SqlDbType.Int) { Value = studentId }
+            };
+
+            // Execute the query with the parameters
+            ExecuteQuery(query, 16, parameters);
         }
         public static List<(int Id, string ProfessionName)> ListProfessions()
         {
@@ -122,55 +218,88 @@ namespace IndividualProject_School.Data
 
             return professionList;
         }
-
-        // Våra metoder för att köra SQL queries mot databasen
-        public static void ExecuteAddEmployee(string firstName, string lastName, int professionId, int salary, DateOnly employmentDate)
+        public static List<(int StudentId, string FirstName, string LastName, string ClassName)> ListStudents()
         {
+            string query = @"SELECT 
+                             s.StudentId, 
+                             s.FirstName, 
+                             s.LastName, 
+                             c.ClassName
+                             FROM 
+                             Students s
+                             INNER JOIN 
+                             Classes c ON s.ClassId = c.ClassId";
+
+            List<(int StudentId, string FirstName, string LastName, string ClassName)> studentList = new List<(int, string, string, string)>();
+
             using (SqlConnection connection = new SqlConnection(_connectionString))
             {
-                string query = @"INSERT INTO Employees (FirstName, LastName, ProfessionId, Salary, EmploymentDate)
-                                 VALUES (@FirstName, @LastName, @ProfessionId, @Salary, @EmploymentDate)";
+                SqlCommand command = new SqlCommand(query, connection);
 
-                using (SqlCommand command = new SqlCommand(query, connection))
+                try
                 {
-                    command.Parameters.AddWithValue("@FirstName", firstName);
-                    command.Parameters.AddWithValue("@LastName", lastName);
-                    command.Parameters.AddWithValue("@ProfessionId", professionId);
-                    command.Parameters.AddWithValue("@Salary", salary);
-                    command.Parameters.AddWithValue("@EmploymentDate", employmentDate);
+                    connection.Open();
+                    using (SqlDataReader reader = command.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            // Read values from the SQL data reader
+                            int studentId = reader.GetInt32(0);  // StudentId
+                            string firstName = reader.GetString(1);  // FirstName
+                            string lastName = reader.GetString(2);  // LastName
+                            string className = reader.GetString(3);  // ClassName
 
-                    try
-                    {
-                        connection.Open();
-                        var rowsAffected = command.ExecuteNonQuery();
-                        Console.WriteLine("Employee added successfully!");
-                    }
-                    catch (Exception ex)
-                    {
-                        Console.WriteLine(ex.Message);
+                            studentList.Add((studentId, firstName, lastName, className));
+                        }
                     }
                 }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
+                }
             }
+
+            return studentList;
         }
-        public static void ExecuteQuery(string query, int padding)
+
+        // Våra metoder för att köra SQL queries mot databasen
+        // ExecuteQuery för att hämta data
+        public static void ExecuteQuery(string query, int padding, params SqlParameter[] parameters)
         {
             using (SqlConnection connection = new SqlConnection(_connectionString))
             {
                 connection.Open();
                 SqlCommand command = new SqlCommand(query, connection);
 
+                // Add parameters if provided
+                if (parameters != null && parameters.Length > 0)
+                {
+                    foreach (var param in parameters)
+                    {
+                        command.Parameters.Add(param);
+                    }
+                }
+
+                // Detect if it's our stored procedure
+                if (query.StartsWith("Get", StringComparison.OrdinalIgnoreCase))
+                {
+                    command.CommandType = CommandType.StoredProcedure;
+                }
+                else
+                {
+                    command.CommandType = CommandType.Text;
+                }
+
                 try
                 {
                     using (SqlDataReader reader = command.ExecuteReader())
                     {
-                        // Skriv ut kolumnnamnen
                         for (int i = 0; i < reader.FieldCount; i++)
                         {
                             Console.Write(reader.GetName(i).PadRight(padding));
                         }
-                        Console.WriteLine(); // Ny rad efter kolumnnamnen
+                        Console.WriteLine();
 
-                        // Skriv ut raderna
                         while (reader.Read())
                         {
                             for (int i = 0; i < reader.FieldCount; i++)
@@ -183,9 +312,43 @@ namespace IndividualProject_School.Data
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine(ex.Message);
+                    Console.WriteLine("Error executing query: " + ex.Message);
                 }
             }
-        } 
+        }
+        // ExecuteNonQuery för att skriva/ändra data
+        public static void ExecuteNonQuery(string query, params SqlParameter[] parameters)
+        {
+            using (SqlConnection connection = new SqlConnection(_connectionString))
+            {
+                connection.Open();
+                using (SqlCommand command = new SqlCommand(query, connection))
+                {
+                    // Add parameters if provided
+                    if (parameters != null && parameters.Length > 0)
+                    {
+                        command.Parameters.AddRange(parameters);
+                    }
+
+                    try
+                    {
+                        int rowsAffected = command.ExecuteNonQuery();
+
+                        if (rowsAffected > 0)
+                        {
+                            Console.WriteLine($"{rowsAffected} rows affected. Action was successful!");
+                        }
+                        else
+                        {
+                            Console.WriteLine("No rows affected. Something went wrong.");
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"Error: {ex.Message}");
+                    }
+                }
+            }
+        }
     }
 }
