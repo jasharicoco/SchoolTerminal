@@ -19,7 +19,7 @@ namespace IndividualProject_School.Data
                              e.EmployeeId AS Id, 
                              e.FirstName + ' ' + e.LastName AS Name, 
                              p.ProfessionName AS Profession,
-                             DATEDIFF(YEAR, e.EmploymentDate, GETDATE()) AS YearsEmployed
+                             DATEDIFF(YEAR, e.EmploymentDate, GETDATE()) AS [Years Employed]
                              FROM Employees e
                              INNER JOIN Professions p ON e.ProfessionId = p.ProfessionId";
 
@@ -27,8 +27,8 @@ namespace IndividualProject_School.Data
         }
         public static void GetSalaryPerMonthPerProfession()
         {
-            string query = @"SELECT p.ProfessionName,
-                             SUM(e.Salary) AS TotalSalary
+            string query = @"SELECT p.ProfessionName AS [Profession Name],
+                             SUM(e.Salary) AS [Total Salary]
                              FROM Employees e
                              JOIN Professions p ON e.ProfessionId = p.ProfessionId
                              GROUP BY p.ProfessionName
@@ -40,7 +40,7 @@ namespace IndividualProject_School.Data
         {
             string query = @"SELECT 
                              p.ProfessionName AS Profession,
-                             ROUND(AVG(e.Salary), 2) AS AverageSalary
+                             ROUND(AVG(e.Salary), 2) AS [Average Salary]
                              FROM Employees e
                              INNER JOIN Professions p ON e.ProfessionId = p.ProfessionId
                              GROUP BY p.ProfessionName
@@ -133,8 +133,8 @@ namespace IndividualProject_School.Data
                              s.FirstName + ' ' + s.LastName AS Student,
                              sub.SubjectName AS Subject,
                              g.Grade AS Grade,
-                             e.FirstName + ' ' + e.LastName AS SetByMentor,
-                             FORMAT(g.DateAssigned, 'yyyy-MM-dd') AS DateAssigned
+                             e.FirstName + ' ' + e.LastName AS [Set By Mentor],
+                             FORMAT(g.DateAssigned, 'yyyy-MM-dd') AS [Date Assigned]
                              FROM Grades g
                              INNER JOIN Students s ON g.StudentId = s.StudentId
                              INNER JOIN Subjects sub ON g.SubjectId = sub.SubjectId
