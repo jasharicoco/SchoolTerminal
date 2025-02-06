@@ -5,7 +5,6 @@ namespace IndividualProject_School.Data
 {
     internal class EFCommands
     {
-        // ENTITY FRAMEWORK-METHODS
         public static void GetEmployees()
         {
             try
@@ -136,8 +135,6 @@ namespace IndividualProject_School.Data
                 Console.WriteLine($"An error occured: {ex.Message}");
             }
         }
-
-        // ADO.NET METHODS
 
     }
 }

@@ -1,4 +1,5 @@
-﻿using Microsoft.Data.SqlClient;
+﻿using IndividualProject_School.Models;
+using Microsoft.Data.SqlClient;
 using System.Data;
 
 namespace IndividualProject_School.Data
@@ -27,7 +28,7 @@ namespace IndividualProject_School.Data
         }
         public static void GetSalaryPerMonthPerProfession()
         {
-            string query = @"SELECT p.ProfessionName AS [Profession Name],
+            string query = @"SELECT p.ProfessionName AS Profession,
                              SUM(e.Salary) AS [Total Salary]
                              FROM Employees e
                              JOIN Professions p ON e.ProfessionId = p.ProfessionId
@@ -44,7 +45,7 @@ namespace IndividualProject_School.Data
                              FROM Employees e
                              INNER JOIN Professions p ON e.ProfessionId = p.ProfessionId
                              GROUP BY p.ProfessionName
-                             ORDER BY AverageSalary DESC"; // From highest to lowest
+                             ORDER BY [Average Salary] DESC"; // From highest to lowest
 
             ExecuteQuery(query, 16);
         }
@@ -163,14 +164,14 @@ namespace IndividualProject_School.Data
 
             if (!int.TryParse(Console.ReadLine(), out int studentId))
             {
-                Console.WriteLine("Invalid input. Please enter a valid student ID.");
+                Console.WriteLine("Please enter a valid student ID.");
                 return;
             }
 
             // Check if the studentId exists in the list
             if (!students.Any(s => s.StudentId == studentId))
             {
-                Console.WriteLine("Invalid Student ID. Please choose a valid Student ID from the list.");
+                Console.WriteLine("Please enter a valid student ID.");
                 return;
             }
 
@@ -185,6 +186,182 @@ namespace IndividualProject_School.Data
 
             // Execute the query with the parameters
             ExecuteQuery(query, 16, parameters);
+        }
+        public static void AssignGradeToStudent()
+        {
+            Console.WriteLine("Which student?");
+            List<(int StudentId, string FirstName, string LastName, string ClassName)> students = ListStudents();
+
+            // Print the student list
+            foreach (var stud in students)
+            {
+                Console.WriteLine($"{stud.StudentId}: {stud.FirstName} {stud.LastName}, Class: {stud.ClassName}");
+            }
+
+            if (!int.TryParse(Console.ReadLine(), out int studentId))
+            {
+                Console.WriteLine("Please enter a valid student ID.");
+                return;
+            }
+
+            // Check if the studentId exists in the list
+            if (!students.Any(s => s.StudentId == studentId))
+            {
+                Console.WriteLine("Please enter a valid student ID.");
+                return;
+            }
+
+            // Get the students classname
+            var student = students.FirstOrDefault(s => s.StudentId == studentId);
+            string className = student.ClassName;
+
+            // Get subjects for the students class
+            var subjects = GetSubjectsForClass(className);
+            if (subjects.Count == 0)
+            {
+                Console.WriteLine("No subjects were found for this class.");
+                return;
+            }
+
+            Console.WriteLine("Which subject would you like to grade?");
+            foreach (var sub in subjects)
+            {
+                Console.WriteLine($"{sub.SubjectId}: {sub.SubjectName}");
+            }
+
+            // Validate input
+            if (!int.TryParse(Console.ReadLine(), out int subjectId))
+            {
+                Console.WriteLine("Please enter a valid subject ID.");
+                return;
+            }
+
+            if (!subjects.Any(s => s.SubjectId == subjectId))
+            {
+                Console.WriteLine("Please enter a valid subject ID.");
+                return;
+            }
+
+            // Save the subject
+            var subject = subjects.FirstOrDefault(sub => sub.SubjectId == subjectId);
+
+            // Choose grade
+            string grade = "";
+            bool validGrade = false;
+
+            while (!validGrade)
+            {
+                Console.WriteLine($"Which grade would you like to add for {student.FirstName} {student.LastName} in {subject.SubjectName}?\n" +
+                                  $"A (superb) to F (failed)");
+                grade = Console.ReadLine().ToUpper();
+
+                if (grade == "A" || grade == "B" || grade == "C" || grade == "D" || grade == "E" || grade == "F")
+                {
+                    validGrade = true; // Exit loop if input is valid
+                }
+                else
+                {
+                    Console.WriteLine("Please enter a valid grade.");
+                }
+            }
+
+            // Assign grade
+            SetStudentGrade(studentId, subjectId, grade);
+        }
+        public static void SetStudentGrade(int studentId, int subjectId, string grade)
+        {
+            string query = @"INSERT INTO Grades (StudentId, SubjectId, Grade, DateAssigned)
+                             VALUES (@StudentId, @SubjectId, @Grade, @DateAssigned)";
+
+            using (SqlConnection connection = new SqlConnection(_connectionString))
+            {
+                connection.Open();
+
+                // Start a transaction
+                SqlTransaction transaction = connection.BeginTransaction();
+
+                // Create command and associate it with transaction
+                SqlCommand command = new SqlCommand(query, connection, transaction);
+                command.Parameters.AddWithValue("@StudentId", studentId);
+                command.Parameters.AddWithValue("@SubjectId", subjectId);
+                command.Parameters.AddWithValue("@Grade", grade);
+                command.Parameters.AddWithValue("@DateAssigned", DateTime.Now.Date);
+
+                try
+                {
+                    int rowsAffected = command.ExecuteNonQuery();
+
+                    if (rowsAffected > 0)
+                    {
+                        Console.WriteLine($"Grade has been assigned.");
+
+                        // If successful, save (commit) the transaction
+                        transaction.Commit();
+                    }
+                    else
+                    {
+                        Console.WriteLine("Grade could not be assigned.");
+
+                        // If not successful, rollback the transaction
+                        transaction.Rollback();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    // If not successful, rollback the transaction
+                    Console.WriteLine("Unexpected error: " + ex.Message);
+                    transaction.Rollback();
+                }
+            }
+        }
+
+        // Lists used in methods
+        public static List<(int SubjectId, string SubjectName)> GetSubjectsForClass(string className)
+        {
+            string query = @"SELECT s.SubjectId, s.SubjectName 
+                             FROM Subjects s
+                             INNER JOIN Classes cl ON s.ClassId = cl.ClassId
+                             WHERE cl.ClassName = @ClassName;";
+
+            List<(int, string)> subjects = new List<(int, string)>();
+
+            using (SqlConnection connection = new SqlConnection(_connectionString))
+            {
+                SqlCommand command = new SqlCommand(query, connection);
+                command.Parameters.AddWithValue("@ClassName", className);
+
+                try
+                {
+                    connection.Open();
+                    using (SqlDataReader reader = command.ExecuteReader())
+                    {
+                        if (!reader.HasRows)
+                        {
+                            Console.WriteLine($"No subjects were found for {className}.");
+                        }
+                        else
+                        {
+                            while (reader.Read())
+                            {
+                                int subjectId = reader.GetInt32(0);  // SubjectId
+                                string subjectName = reader.GetString(1);  // SubjectName
+
+                                subjects.Add((subjectId, subjectName));  // Add subjectId and subjectName to the list
+                            }
+                        }
+                    }
+                }
+                catch (SqlException ex)
+                {
+                    Console.WriteLine("Fel vid hämtning av ämnen: SQL Error - " + ex.Message);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("Fel vid hämtning av ämnen: " + ex.Message);
+                }
+            }
+
+            return subjects;
         }
         public static List<(int Id, string ProfessionName)> ListProfessions()
         {
@@ -349,5 +526,6 @@ namespace IndividualProject_School.Data
                 }
             }
         }
+
     }
 }
