@@ -44,25 +44,25 @@ namespace IndividualProject_School.Data
                              FROM Employees e
                              INNER JOIN Professions p ON e.ProfessionId = p.ProfessionId
                              GROUP BY p.ProfessionName
-                             ORDER BY AverageSalary DESC"; // Sorterar från högsta till lägsta lön
+                             ORDER BY AverageSalary DESC"; // From highest to lowest
 
             ExecuteQuery(query, 16);
         }
         public static void AddEmployee()
         {
-            Console.WriteLine("What title would you like to give your employee?");
+            Console.WriteLine("Profession?");
             List<(int Id, string ProfessionName)> professions = ListProfessions();  // Fetch all professions
 
             if (!int.TryParse(Console.ReadLine(), out int professionId))
             {
-                Console.WriteLine("Invalid input. Please enter a valid profession ID.");
+                Console.WriteLine("Please enter a valid profession ID.");
                 return;
             }
 
             // Check if professionId exists in the list
             if (!professions.Any(p => p.Id == professionId))
             {
-                Console.WriteLine("Invalid Profession ID. Please choose a valid Profession ID from the list.");
+                Console.WriteLine("Please enter a valid profession ID.");
                 return;
             }
 
@@ -76,7 +76,7 @@ namespace IndividualProject_School.Data
             int salary;
             if (!int.TryParse(Console.ReadLine(), out salary) || salary < 20000 || salary > 50000)
             {
-                Console.WriteLine("Invalid salary. Please enter a valid number.");
+                Console.WriteLine("Please enter a valid number.");
                 return;
             }
 
@@ -84,7 +84,7 @@ namespace IndividualProject_School.Data
             DateOnly employmentDate;
             if (!DateOnly.TryParse(Console.ReadLine(), out employmentDate))
             {
-                Console.WriteLine("Invalid date. Please enter a valid date.");
+                Console.WriteLine("Please enter a valid date.");
                 return;
             }
 
@@ -101,15 +101,14 @@ namespace IndividualProject_School.Data
         new SqlParameter("@EmploymentDate", SqlDbType.Date) { Value = employmentDate }
     };
 
-            // Now call ExecuteNonQuery to execute the INSERT query
-            ExecuteNonQuery(query,parameters);
+            // Call ExecuteNonQuery to execute the INSERT query
+            ExecuteNonQuery(query, parameters);
         }
         public static void GetGradesFromSpecificStudent()
         {
             Console.WriteLine("Which student?");
             List<(int StudentId, string FirstName, string LastName, string ClassName)> students = ListStudents();  // Fetch all students
 
-            // Print the student list for selection
             foreach (var student in students)
             {
                 Console.WriteLine($"{student.StudentId}: {student.ClassName} - {student.FirstName} {student.LastName}");
@@ -117,14 +116,14 @@ namespace IndividualProject_School.Data
 
             if (!int.TryParse(Console.ReadLine(), out int studentId))
             {
-                Console.WriteLine("Invalid input. Please enter a valid student ID.");
+                Console.WriteLine("Please enter a valid student ID.");
                 return;
             }
 
             // Check if the studentId exists in the list
             if (!students.Any(s => s.StudentId == studentId))
             {
-                Console.WriteLine("Invalid Student ID. Please choose a valid Student ID from the list.");
+                Console.WriteLine("Please enter a valid student ID.");
                 return;
             }
 
@@ -262,8 +261,8 @@ namespace IndividualProject_School.Data
             return studentList;
         }
 
-        // Våra metoder för att köra SQL queries mot databasen
-        // ExecuteQuery för att hämta data
+        // Methods to run our SQL queries
+        // ExecuteQuery to fetch data
         public static void ExecuteQuery(string query, int padding, params SqlParameter[] parameters)
         {
             using (SqlConnection connection = new SqlConnection(_connectionString))
@@ -316,7 +315,7 @@ namespace IndividualProject_School.Data
                 }
             }
         }
-        // ExecuteNonQuery för att skriva/ändra data
+        // ExecuteNonQuery to write/change data
         public static void ExecuteNonQuery(string query, params SqlParameter[] parameters)
         {
             using (SqlConnection connection = new SqlConnection(_connectionString))
