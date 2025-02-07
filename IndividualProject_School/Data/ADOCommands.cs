@@ -29,7 +29,8 @@ namespace IndividualProject_School.Data
         public static void GetSalaryPerMonthPerProfession()
         {
             string query = @"SELECT p.ProfessionName AS Profession,
-                             SUM(e.Salary) AS [Total Salary]
+                             SUM(e.Salary) AS [Total Salary],
+                             COUNT(e.Salary) AS [Number of Salaries]
                              FROM Employees e
                              JOIN Professions p ON e.ProfessionId = p.ProfessionId
                              GROUP BY p.ProfessionName
@@ -41,7 +42,8 @@ namespace IndividualProject_School.Data
         {
             string query = @"SELECT 
                              p.ProfessionName AS Profession,
-                             ROUND(AVG(e.Salary), 2) AS [Average Salary]
+                             ROUND(AVG(e.Salary), 2) AS [Average Salary],
+                             COUNT(e.Salary) AS [Number of Employees]
                              FROM Employees e
                              INNER JOIN Professions p ON e.ProfessionId = p.ProfessionId
                              GROUP BY p.ProfessionName
