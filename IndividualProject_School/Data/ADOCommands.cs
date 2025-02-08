@@ -131,8 +131,7 @@ namespace IndividualProject_School.Data
             }
 
             // Query to fetch grades for a specific student
-            string query = @"
-                             SELECT 
+            string query = @"SELECT 
                              s.FirstName + ' ' + s.LastName AS Student,
                              sub.SubjectName AS Subject,
                              g.Grade AS Grade,
@@ -355,11 +354,11 @@ namespace IndividualProject_School.Data
                 }
                 catch (SqlException ex)
                 {
-                    Console.WriteLine("Fel vid hämtning av ämnen: SQL Error - " + ex.Message);
+                    Console.WriteLine($"Fel vid hämtning av ämnen: SQL Error {ex.Message}");
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine("Fel vid hämtning av ämnen: " + ex.Message);
+                    Console.WriteLine($"Fel vid hämtning av ämnen: {ex.Message}");
                 }
             }
 
@@ -490,7 +489,7 @@ namespace IndividualProject_School.Data
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine("Error executing query: " + ex.Message);
+                    Console.WriteLine($"Error executing query: {ex.Message}");
                 }
             }
         }
