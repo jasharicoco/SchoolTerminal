@@ -163,14 +163,7 @@ namespace IndividualProject_School.Data
                 Console.WriteLine($"{student.StudentId}: {student.ClassName} - {student.FirstName} {student.LastName}");
             }
 
-            if (!int.TryParse(Console.ReadLine(), out int studentId))
-            {
-                Console.WriteLine("Please enter a valid student ID.");
-                return;
-            }
-
-            // Check if the studentId exists in the list
-            if (!students.Any(s => s.StudentId == studentId))
+            if (!int.TryParse(Console.ReadLine(), out int studentId) || !students.Any(s => s.StudentId == studentId))
             {
                 Console.WriteLine("Please enter a valid student ID.");
                 return;
@@ -199,14 +192,7 @@ namespace IndividualProject_School.Data
                 Console.WriteLine($"{stud.StudentId}: {stud.FirstName} {stud.LastName}, Class: {stud.ClassName}");
             }
 
-            if (!int.TryParse(Console.ReadLine(), out int studentId))
-            {
-                Console.WriteLine("Please enter a valid student ID.");
-                return;
-            }
-
-            // Check if the studentId exists in the list
-            if (!students.Any(s => s.StudentId == studentId))
+            if (!int.TryParse(Console.ReadLine(), out int studentId) || !students.Any(s => s.StudentId == studentId))
             {
                 Console.WriteLine("Please enter a valid student ID.");
                 return;
